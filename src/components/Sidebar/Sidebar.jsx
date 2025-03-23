@@ -4,7 +4,7 @@ import './Sidebar.css'
 
 const Sidebar = () => {
 
-    const [extended, setExtension] = useState(true);
+    const [extended, setExtension] = useState(false);
 
     function handleClick() {
         setExtension(!extended)
