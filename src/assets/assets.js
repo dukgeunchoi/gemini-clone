@@ -11,6 +11,7 @@ import travel_icon from './travel-luggage.png'
 import summary_icon from './exam.png'
 import gallery_icon from './gallery.png'
 import send_icon from './send.png'
+import gemini_icon from './image.png'
 
 export const assets = {
     menu_icon,
@@ -25,5 +26,6 @@ export const assets = {
     travel_icon,
     summary_icon,
     gallery_icon,
-    send_icon
+    send_icon,
+    gemini_icon
 }
