@@ -56,7 +56,6 @@ const Main = () => {
                     return (<div key={index} className={`chat-message ${message.role}`}>
                         {message.role === "user" ? <>
                             <div className="result-title">
-                                <img src={assets.user_icon} alt="" />
                                 <p>{message.text}</p>
                             </div>
                         </> : <>
