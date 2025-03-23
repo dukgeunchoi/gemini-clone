@@ -8,7 +8,13 @@ import { Context } from '../../context/Context'
 const Main = () => {
 
     const {onSent, recentPrompt, showResult, loading, resultData, setInput, input, currChat} = useContext(Context)
-  return (
+
+    const useSuggestion = (input) => {
+        setInput("");
+        setInput(input);
+    }
+
+    return (
     <div className="main">
         <div className="nav">
             <p>Gemini</p>
@@ -24,19 +30,19 @@ const Main = () => {
             </div>
 
             <div className="cards">
-                <div className="card">
+                <div onClick={() => useSuggestion("Help me debug my code.")} className="card">
                     <p>Help me debug my code.</p>
                     <img src={assets.code_icon} alt="code" />
                 </div>
-                <div className="card">
+                <div onClick={() => useSuggestion("Plan a healthy weekly meal prep.")} className="card">
                     <p>Plan a healthy weekly meal prep.</p>
                     <img src={assets.health_icon} alt="health" />
                 </div>
-                <div className="card">
+                <div onClick={() => useSuggestion("Travel ideas for a weekend getaway.")} className="card">
                     <p>Travel ideas for a weekend getaway.</p>
                     <img src={assets.travel_icon} alt="travel" />
                 </div>
-                <div className="card">
+                <div onClick={() => useSuggestion("Give me a quick summary of this article.")} className="card">
                     <p>Give me a quick summary of this article.</p>
                     <img src={assets.summary_icon} alt="summary" />
                 </div>
