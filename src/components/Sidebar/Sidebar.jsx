@@ -7,12 +7,7 @@ const Sidebar = () => {
 
     const [extended, setExtension] = useState(false);
     const {onSent, setRecentPrompt, newChat, chats, loadChat} = useContext(Context);
-    //prevPrompts
 
-    // const loadPrompt = async (prompt) => {
-    //     setRecentPrompt(prompt)
-    //     await onSent(prompt);
-    // }
     function handleClick() {
         setExtension(!extended)
     }
@@ -29,9 +24,8 @@ const Sidebar = () => {
                 {chats.map((item,index)=> {
                     return (
                         <div onClick={()=>loadChat(item.id)} className="recent-entry">
-                        {/* // <div className="recent-entry"> */}
                             <img src={assets.chat_icon} alt="" />
-                            <p>{item.title.slice(0,18)} ...</p>
+                            {item.title.length > 18 ? <p>{item.title.slice(0,18)} ...</p> : <p>{item.title}</p>}
                         </div>
                     )
                 })}
