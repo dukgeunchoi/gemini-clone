@@ -1,5 +1,6 @@
 import { createContext, use, useState } from "react";
 import run from "../config/gemini";
+import { v4 as uuidv4 } from 'uuid';
 
 
 export const Context = createContext();
@@ -8,47 +9,106 @@ const ContextProvider = (props) => {
 
     const [input, setInput] = useState("");
     const [recentPrompt, setRecentPrompt] = useState("");
-    const [prevPrompts, setPrevPrompts] = useState([]);
     const [showResult, setShowResult] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resultData, setResultData] = useState("");
+    const [chats, setChats] = useState([]); // {id, title, chatHistory: chatHistory}
+    const [currChat, setCurrChat] = useState(null);
 
-    const delayPara = (index, nextWord) => {
-        setTimeout(function(){
-            setResultData(prev => prev+nextWord)
-        }, 75*index)
+    const loadChat = (id) => {
+        let newChat = chats.find(c => c.id === id);
+        setCurrChat(newChat);
+        console.log(currChat);
+        setLoading(false);
+        setShowResult(true);
     }
 
-    const onSent = async () => {
+    // const delayPara = (index, nextWord) => {
+    //     setTimeout(function(){
+    //         setResultData(prev => prev+nextWord)
+    //     }, 75*index)
+    // }
+
+    const newChat = () => {
+        setCurrChat(null);
+        setLoading(false);
+        setShowResult(false);
+    }
+
+    const onSent = async (prompt) => {
         setResultData("");
         setLoading(true);
         setShowResult(true);
-        setRecentPrompt(input);
-        setPrevPrompts(prev => [...prev, input])
-
-        const response = await run(input);
-        let responseArr = response.split("**");
-        let newResponse = "";
-        // FIXXXXXXX
-        for (let i = 0; i < responseArr.length; i++) {
-            newResponse += (i % 2 === 0) ? responseArr[i] : "<b>" + responseArr[i] + "</b>"
-            // if (i % 2 === 0) newArr += responseArr[i]
-            // else newArr += "<b>" + responseArr[i] + "</b>"
+        
+        // new chat - make new chat id, then add to chats
+        let chatToUpdate = currChat;
+        if (currChat === null) {
+            chatToUpdate = { id: uuidv4(), title: input, chatHistory: [] };
+            setCurrChat(chatToUpdate);
+            setChats(prev => [...prev, chatToUpdate]);
         }
-        let newResponse2 = newResponse.split("*").join("</br")
-        // let newResponseArr = newResponse2.split(" ")
-        // for (let j = 0; j <newResponseArr.length; j++) {
-        //     delayPara(j, newResponseArr[j]+" ")
-        // }
-        setResultData(newResponse2);
+
+        const userMessage = (prompt !== undefined) ? prompt : input;
+        setInput("");
+
+        setCurrChat(prevChat => {
+            const updatedChat = {
+                ...prevChat,
+                chatHistory: [...prevChat.chatHistory, { role: "user", text: userMessage }]
+            };
+    
+            // Update the chats array inside the same function to ensure sync
+            setChats(prevChats => 
+                prevChats.map(chat => 
+                    chat.id === updatedChat.id ? updatedChat : chat
+                )
+            );
+    
+            return updatedChat;
+        });
+        
+        setCurrChat(prevChat => ({
+            ...prevChat,
+            chatHistory: [...prevChat.chatHistory, { role: "ai", text: "Just a sec..." }] // for loading
+        }));
+        
+        let response = await run(userMessage);
+
+        // FIXX
+        let formattedResponse = response
+        .split("**")
+        .map((part, i) => (i % 2 === 0 ? part : `<b>${part}</b>`))
+        .join("")
+        .split("*")
+        .join("</br>");
 
         setLoading(false);
-        setInput("");
+
+        setResultData(formattedResponse);
+
+        setCurrChat(prevChat => {
+            const updatedChat = {
+                ...prevChat,
+                chatHistory: prevChat.chatHistory.map((message, index) =>
+                    index === prevChat.chatHistory.length - 1 && message.text === "Just a sec..."
+                    ? { ...message, text: formattedResponse }
+                    : message
+                )
+            };
+    
+            // Update chats again with the final response
+            setChats(prevChats => 
+                prevChats.map(chat => 
+                    chat.id === updatedChat.id ? updatedChat : chat
+                )
+            );
+    
+            return updatedChat;
+        });
+        
     }
 
     const contextValue = {
-        prevPrompts,
-        setPrevPrompts,
         onSent,
         setRecentPrompt,
         recentPrompt,
@@ -59,7 +119,13 @@ const ContextProvider = (props) => {
         resultData,
         setResultData,
         input,
-        setInput
+        setInput,
+        newChat,
+        currChat,
+        setCurrChat,
+        chats,
+        setChats,
+        loadChat
     }
 
     return (
