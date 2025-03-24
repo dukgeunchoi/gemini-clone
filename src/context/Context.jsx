@@ -8,26 +8,17 @@ export const Context = createContext();
 const ContextProvider = (props) => {
 
     const [input, setInput] = useState("");
-    const [recentPrompt, setRecentPrompt] = useState("");
     const [showResult, setShowResult] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [resultData, setResultData] = useState("");
     const [chats, setChats] = useState([]); // {id, title, chatHistory: chatHistory}
     const [currChat, setCurrChat] = useState(null);
 
     const loadChat = (id) => {
         let newChat = chats.find(c => c.id === id);
         setCurrChat(newChat);
-        console.log(currChat);
         setLoading(false);
         setShowResult(true);
     }
-
-    // const delayPara = (index, nextWord) => {
-    //     setTimeout(function(){
-    //         setResultData(prev => prev+nextWord)
-    //     }, 75*index)
-    // }
 
     const newChat = () => {
         setCurrChat(null);
@@ -36,7 +27,6 @@ const ContextProvider = (props) => {
     }
 
     const onSent = async (prompt) => {
-        setResultData("");
         setLoading(true);
         setShowResult(true);
         
@@ -74,17 +64,15 @@ const ContextProvider = (props) => {
         
         let response = await run(userMessage);
 
-        // FIXX
         let formattedResponse = response
-        .split("**")
-        .map((part, i) => (i % 2 === 0 ? part : `<b>${part}</b>`))
-        .join("")
-        .split("*")
-        .join("</br>");
+            .replace(/\*\*\s*(.*?)\s*\*\*/g, '<b>$1</b>') // bold text
+            .replace(/\*\s(.*?):/g, '<li><b>$1:</b>') // List item start
+            .replace(/\*\s(.*?)/g, '<li>$1') // List item start without bold
+            .replace(/\n\n/g, '</ul><br>') // end of list
+            .replace(/\n\*/g, '<ul>') // start of list
+            .replace(/\n/g, '<br>'); // newline
 
         setLoading(false);
-
-        setResultData(formattedResponse);
 
         setCurrChat(prevChat => {
             const updatedChat = {
@@ -110,14 +98,10 @@ const ContextProvider = (props) => {
 
     const contextValue = {
         onSent,
-        setRecentPrompt,
-        recentPrompt,
         showResult,
         setShowResult,
         loading,
         setLoading,
-        resultData,
-        setResultData,
         input,
         setInput,
         newChat,

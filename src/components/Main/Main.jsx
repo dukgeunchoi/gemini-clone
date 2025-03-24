@@ -2,17 +2,22 @@ import React, { useContext } from 'react'
 import './Main.css'
 import { assets } from '../../assets/assets'
 import { Context } from '../../context/Context'
-// import ReactMarkdown from 'react-markdown';
 
 
 const Main = () => {
 
-    const {onSent, recentPrompt, showResult, loading, resultData, setInput, input, currChat} = useContext(Context)
+    const {onSent, showResult, loading, setInput, input, currChat} = useContext(Context)
 
     const useSuggestion = (input) => {
         setInput("");
         setInput(input);
     }
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter' && input.trim()) {
+            onSent();
+        }
+      };
 
     return (
     <div className="main">
@@ -72,9 +77,12 @@ const Main = () => {
 
             <div className="main-bottom">
                 <div className="search-box">
-                    <input onChange={(e) => setInput(e.target.value)} value={input} type="text" placeholder='Enter prompt here'/>
+                    <input onChange={(e) => setInput(e.target.value)} 
+                            value={input} type="text" 
+                            placeholder='Ask Gemini'
+                            onKeyDown={handleKeyDown}
+                            />
                     <div>
-                        {/* <img src={assets.gallery_icon} alt="gallery" /> */}
                         {input?<><img onClick={() => onSent()} src={assets.send_icon} alt="send" /></>:null}
                     </div>
                 </div>

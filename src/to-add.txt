@@ -1,4 +1,0 @@
-- Suggestion bar DONE
-- Sidebar extending when clicking pther stuff asw
-- user text box
-- unique key error in sidebar
