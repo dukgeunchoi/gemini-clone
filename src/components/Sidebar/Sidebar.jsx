@@ -6,13 +6,8 @@ import { Context } from '../../context/Context';
 const Sidebar = () => {
 
     const [extended, setExtension] = useState(false);
-    const {onSent, setRecentPrompt, newChat, chats, loadChat} = useContext(Context);
-    //prevPrompts
+    const {newChat, chats, loadChat} = useContext(Context);
 
-    // const loadPrompt = async (prompt) => {
-    //     setRecentPrompt(prompt)
-    //     await onSent(prompt);
-    // }
     function handleClick() {
         setExtension(!extended)
     }
@@ -20,7 +15,10 @@ const Sidebar = () => {
     <div className="sidebar">
         <div className="top">
             <img className='menu' src={assets.menu_icon} alt="menu" onClick={() => handleClick()}/>
-            <div onClick={() => newChat()} className="new-chat">
+            <div onClick={() => newChat()} 
+                onMouseEnter={() => setExtension(true)}
+                onMouseLeave={() => extended && setExtension(false)}
+                className="new-chat">
                 <img src={assets.add_icon} alt="new chat" />
                 {extended?<p>New Chat</p>:null}
             </div>
@@ -28,17 +26,16 @@ const Sidebar = () => {
                 <p className="recent-title">Recent</p>
                 {chats.map((item,index)=> {
                     return (
-                        <div onClick={()=>loadChat(item.id)} className="recent-entry">
-                        {/* // <div className="recent-entry"> */}
+                        <div key={index} onClick={()=>loadChat(item.id)} className="recent-entry">
                             <img src={assets.chat_icon} alt="" />
-                            <p>{item.title.slice(0,18)} ...</p>
+                            {item.title.length > 18 ? <p>{item.title.slice(0,18)} ...</p> : <p>{item.title}</p>}
                         </div>
                     )
                 })}
             </div>:null}
         </div>
         <div className="bottom">
-            <div className="bottom-item recent-entry">
+            <div className="bottom-item recent-entry" >
                 <img src={assets.help_icon} alt="help" />
                 {extended?<p>Help</p>:null}
             </div>
